@@ -1,5 +1,6 @@
 # ltp-test
 
+```
 # update packages lists
 sudo apt-get update
 
@@ -20,4 +21,4 @@ make autotools
 ./configure
 make all -j4
 sudo make install
-
+```
