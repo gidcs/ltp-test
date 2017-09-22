@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LTPROOT="/opt/ltp"
+
 function help(){
     echo ""
     echo "Usage: "
@@ -12,9 +14,8 @@ function help(){
 
 function io(){
     echo "IO test begin"
-    export LTPROOT="/opt/ltp"
     export TMPBASE="/tmp"
-    export TMP="/opt/ltp/tmp"
+    export TMP="${LTPROOT}/tmp"
     mkdir $TMP  > /dev/null 2>&1
     file1="$TMP/file1"
     
