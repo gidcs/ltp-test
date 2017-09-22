@@ -1,0 +1,152 @@
+#!/bin/bash
+
+function help(){
+    echo ""
+    echo "Usage: "
+    echo "    ./runtest io"
+    echo "    ./runtest mem"
+    echo "    ./runtest net"
+    echo "    ./runtest all"
+    echo ""
+}
+
+function io(){
+    echo "IO test begin"
+    export LTPROOT="/opt/ltp"
+    export TMPBASE="/tmp"
+    export TMP="/opt/ltp/tmp"
+    mkdir $TMP  > /dev/null 2>&1
+    file1="$TMP/file1"
+    
+    date
+    dd if=/dev/urandom of=$file1 bs=1M count=1000
+    dd if=$file1 of=$TMP/aiodio/junkfile bs=8192 conv=block,sync
+
+    echo "************ Running dio/aio tests "
+    sort -R ${LTPROOT}/runtest/dio -o ${TMPBASE}/ltp-dio_aio
+    cat ${LTPROOT}/runtest/aio > ${TMPBASE}/ltp-dio_aio
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a dio_aio -n dio_aio -l dio_aio.logfile -o dio_aio.outfile -p -f ${TMPBASE}/ltp-dio_aio &
+
+    wait $!
+    sync
+    echo "************ End Running dio/aio tests "
+    echo ""
+
+    echo "************ Running aio-stress tests "
+    sort -R ${LTPROOT}/runtest/ltp-aio-stress.part1 -o ${TMPBASE}/ltp-aio-stress.part1
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiostresspart1 -n ltp-aiostresspart1 -l ltpaiostress.logfile -o ltpaiostress.outfile -p -f ${TMPBASE}/ltp-aio-stress.part1 &
+
+    wait $!
+    sync
+    echo "************ End Running aio-stress tests "
+    echo ""
+
+    echo "************ Running EXTENDED aio-stress tests "
+    sort -R ${LTPROOT}/runtest/ltp-aio-stress.part2 -o ${TMPBASE}/ltp-aio-stress.part2
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiostresspart2 -n ltp-aiostresspart2 -l ltpaiostress.logfile -o ltpaiostress.outfile -p -f ${TMPBASE}/ltp-aio-stress.part2 &
+
+    wait $!
+    sync
+
+    dd if=$file1 of=$TMP/aiodio/junkfile bs=8192 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/fff      bs=4096 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/ff1      bs=2048 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/ff2      bs=1024 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/ff3      bs=512  conv=block,sync
+
+    echo "************ Running aiocp tests "
+    sort -R ${LTPROOT}/runtest/ltp-aiodio.part1 -o ${TMPBASE}/ltp-aiodio.part1
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart1 -n ltp-aiodiopart1 -l ltpaiodio1.logfile -o ltpaiodio1.outfile -p -f ${TMPBASE}/ltp-aiodio.part1 &
+
+    wait $!
+    sync
+    echo "************ End Running aiocp tests "
+    echo ""
+
+    echo "************ Running aiodio_sparse tests "
+    sort -R ${LTPROOT}/runtest/ltp-aiodio.part2 -o ${TMPBASE}/ltp-aiodio.part2
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart2 -n ltp-aiodiopart2 -l ltpaiodio2.logfile -o ltpaiodio2.outfile -p -f ${TMPBASE}/ltp-aiodio.part2 &
+
+    wait $!
+    sync
+    echo "************ End Running aiodio_sparse tests "
+    echo ""
+
+    echo "************ Running fsx-linux tests "
+    sort -R ${LTPROOT}/runtest/ltp-aiodio.part3 -o ${TMPBASE}/ltp-aiodio.part3
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart3 -n ltp-aiodiopart3 -l ltpaiodio3.logfile -o ltpaiodio3.outfile -p -f ${TMPBASE}/ltp-aiodio.part3 &
+
+    wait $!
+    sync
+
+    dd if=$file1 of=$TMP/aiodio/file2      bs=2048 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/file3      bs=1024 conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/file4      bs=512  conv=block,sync
+    dd if=$file1 of=$TMP/aiodio/file5      bs=4096 conv=block,sync
+
+    echo "************ Running dio_sparse & miscellaneous tests "
+    sort -R ${LTPROOT}/runtest/ltp-aiodio.part4 -o ${TMPBASE}/ltp-aiodio.part4
+    ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart4 -n ltp-aiodiopart4 -l ltpaiodio4.logfile -o ltpaiodio4.outfile -p -f ${TMPBASE}/ltp-aiodio.part4 &
+
+    wait $!
+    sync
+    echo "************ End Running dio_sparse & miscellaneous tests "
+    echo ""
+
+    rm -f $TMP/aiodio/fff
+    rm -f $TMP/aiodio/ff1
+    rm -f $TMP/aiodio/ff2
+    rm -f $TMP/aiodio/ff3
+    rm -f $TMP/aiodio/junkfile*
+    rm -f $TMP/aiodio/file*
+
+    date
+    echo "IO test end"
+}
+
+function mem(){
+    echo "MEM test begin"
+    date
+    
+    echo "************ Running mm tests "
+
+    ${LTPROOT}/bin/ltp-pan -e -S -a mm -n mm -l mm.logfile -o mm.outfile -p -f ${PWD}/testlist/mem.test &
+
+    wait $!
+    sync
+    echo "************ End Running mm tests "
+    echo ""
+    
+    date
+    echo "MEM test end"
+}
+
+function net(){
+    echo "NET test begin"
+    
+
+    echo "************ Running net tests "
+    . netconf.env
+    ${LTPROOT}/bin/ltp-pan -e -S -a net -n net -l net.logfile -o net.outfile -p -f ${PWD}/testlist/net.test &
+
+    wait $!
+    sync
+    echo "************ End Running net tests "
+    echo ""
+    
+    echo "NET test end"
+}
+
+case "$1" in
+    "io") io;;
+    "mem") mem;;
+    "net") net;;
+    "all") io; mem; net;;
+    *) help; exit 1;;
+esac
