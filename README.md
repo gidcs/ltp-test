@@ -28,7 +28,7 @@ sudo make install
 ## runtest
 
 ```
-https://github.com/gidcs/ltp-test.git
+git clone https://github.com/gidcs/ltp-test.git
 cd ltp-test
 ./runtest io
 ./runtest mem
