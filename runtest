@@ -4,7 +4,6 @@ export LTPROOT="/opt/ltp"
 export PATH=$LTPROOT/testcases/bin:$PATH
 export TESTLIST="${PWD}/testlist"
 export OUTPUT="${PWD}/output"
-rm -rf $OUTPUT
 mkdir $OUTPUT  > /dev/null 2>&1
 cd $OUTPUT
 
@@ -27,7 +26,6 @@ function io(){
 
     mkdir $TMP/aiodio  > /dev/null 2>&1
 
-    
     date
 
     if [ ! -f ${file1} ]; then
@@ -38,7 +36,7 @@ function io(){
     echo "************ Running dio/aio tests "
     sort -R ${LTPROOT}/runtest/dio -o ${TMPBASE}/ltp-dio_aio
     cat ${LTPROOT}/runtest/io >> ${TMPBASE}/ltp-dio_aio
-
+    
     ${LTPROOT}/bin/ltp-pan -e -S -a dio_aio -n dio_aio -l dio_aio.logfile -o dio_aio.outfile -p -f ${TMPBASE}/ltp-dio_aio &
 
     wait $!
