@@ -1,6 +1,12 @@
 #!/bin/bash
 
 export LTPROOT="/opt/ltp"
+export PATH=$LTPROOT/testcases/bin:$PATH
+export TESTLIST="${PWD}/testlist"
+export OUTPUT="${PWD}/output"
+rm -rf $OUTPUT
+mkdir $OUTPUT  > /dev/null 2>&1
+cd $OUTPUT
 
 function help(){
     echo ""
@@ -117,7 +123,7 @@ function mem(){
     
     echo "************ Running mm tests "
 
-    ${LTPROOT}/bin/ltp-pan -e -S -a mm -n mm -l mm.logfile -o mm.outfile -p -f ${PWD}/testlist/mem.test &
+    ${LTPROOT}/bin/ltp-pan -e -S -a mm -n mm -l mm.logfile -o mm.outfile -p -f ${TESTLIST}/mem.test &
 
     wait $!
     sync
@@ -134,7 +140,7 @@ function net(){
 
     echo "************ Running net tests "
     . netconf.env
-    ${LTPROOT}/bin/ltp-pan -e -S -a net -n net -l net.logfile -o net.outfile -p -f ${PWD}/testlist/net.test &
+    ${LTPROOT}/bin/ltp-pan -e -S -a net -n net -l net.logfile -o net.outfile -p -f ${TESTLIST}/net.test &
 
     wait $!
     sync
