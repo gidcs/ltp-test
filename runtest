@@ -37,7 +37,7 @@ function io(){
 
     echo "************ Running dio/aio tests "
     sort -R ${LTPROOT}/runtest/dio -o ${TMPBASE}/ltp-dio_aio
-    cat ${LTPROOT}/runtest/io > ${TMPBASE}/ltp-dio_aio
+    cat ${LTPROOT}/runtest/io >> ${TMPBASE}/ltp-dio_aio
 
     ${LTPROOT}/bin/ltp-pan -e -S -a dio_aio -n dio_aio -l dio_aio.logfile -o dio_aio.outfile -p -f ${TMPBASE}/ltp-dio_aio &
 
