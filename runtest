@@ -29,7 +29,10 @@ function io(){
 
     
     date
-    dd if=/dev/urandom of=$file1 bs=1M count=1000
+
+    if [ ! -f ${file1} ]; then
+        dd if=/dev/urandom of=$file1 bs=1M count=1000
+    fi
     dd if=$file1 of=$TMP/aiodio/junkfile bs=8192 conv=block,sync
 
     echo "************ Running dio/aio tests "
