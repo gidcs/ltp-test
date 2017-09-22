@@ -1,5 +1,7 @@
 # ltp-test
 
+## Build and install ltp
+
 ```
 # update packages lists
 sudo apt-get update
@@ -21,4 +23,14 @@ make autotools
 ./configure
 make all -j4
 sudo make install
+```
+
+## runtest
+
+```
+https://github.com/gidcs/ltp-test.git
+cd ltp-test
+./runtest io
+./runtest mem
+./runtest net #please update netconf.env
 ```
