@@ -107,6 +107,7 @@ function io(){
     export TMP="${LTPROOT}/tmp"
     export TMPDIR="$TMP/aiodio"
     mkdir $TMP  > /dev/null 2>&1
+    mkdir $TMP/junkdir  > /dev/null 2>&1
     file1="$TMP/file1"
 
     mkdir $TMPDIR  > /dev/null 2>&1
