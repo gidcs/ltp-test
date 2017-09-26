@@ -17,22 +17,7 @@ function help(){
     echo ""
 }
 
-function io(){
-    echo "IO test begin"
-    export TMPBASE="/tmp"
-    export TMP="${LTPROOT}/tmp"
-    mkdir $TMP  > /dev/null 2>&1
-    file1="$TMP/file1"
-
-    mkdir $TMP/aiodio  > /dev/null 2>&1
-
-    date
-
-    if [ ! -f ${file1} ]; then
-        dd if=/dev/urandom of=$file1 bs=1M count=1000
-    fi
-    dd if=$file1 of=$TMP/aiodio/junkfile bs=8192 conv=block,sync
-
+function aio_dio(){
     echo "************ Running dio/aio tests "
     sort -R ${LTPROOT}/runtest/dio -o ${TMPBASE}/ltp-dio_aio
     cat ${LTPROOT}/runtest/io >> ${TMPBASE}/ltp-dio_aio
@@ -43,9 +28,11 @@ function io(){
     sync
     echo "************ End Running dio/aio tests "
     echo ""
+}
 
+function aio_stress(){
     echo "************ Running aio-stress tests "
-    sort -R ${LTPROOT}/runtest/ltp-aio-stress.part1 -o ${TMPBASE}/ltp-aio-stress.part1
+    sort -R ${TESTLIST}/ltp-aio-stress.part1 -o ${TMPBASE}/ltp-aio-stress.part1
 
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiostresspart1 -n ltp-aiostresspart1 -l ltpaiostress.logfile -o ltpaiostress.outfile -p -f ${TMPBASE}/ltp-aio-stress.part1 &
 
@@ -53,23 +40,23 @@ function io(){
     sync
     echo "************ End Running aio-stress tests "
     echo ""
+}
 
+function aio_stress_extended(){
     echo "************ Running EXTENDED aio-stress tests "
-    sort -R ${LTPROOT}/runtest/ltp-aio-stress.part2 -o ${TMPBASE}/ltp-aio-stress.part2
+    sort -R ${TESTLIST}/ltp-aio-stress.part2 -o ${TMPBASE}/ltp-aio-stress.part2
 
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiostresspart2 -n ltp-aiostresspart2 -l ltpaiostress.logfile -o ltpaiostress.outfile -p -f ${TMPBASE}/ltp-aio-stress.part2 &
 
     wait $!
     sync
+    echo "************ End Running EXTENDED aio-stress tests "
+    echo ""
+}
 
-    dd if=$file1 of=$TMP/aiodio/junkfile bs=8192 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/fff      bs=4096 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/ff1      bs=2048 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/ff2      bs=1024 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/ff3      bs=512  conv=block,sync
-
+function aio_cp(){
     echo "************ Running aiocp tests "
-    sort -R ${LTPROOT}/runtest/ltp-aiodio.part1 -o ${TMPBASE}/ltp-aiodio.part1
+    sort -R ${TESTLIST}/ltp-aiodio.part1 -o ${TMPBASE}/ltp-aiodio.part1
 
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart1 -n ltp-aiodiopart1 -l ltpaiodio1.logfile -o ltpaiodio1.outfile -p -f ${TMPBASE}/ltp-aiodio.part1 &
 
@@ -77,9 +64,11 @@ function io(){
     sync
     echo "************ End Running aiocp tests "
     echo ""
+}
 
+function aiodio_sparse(){
     echo "************ Running aiodio_sparse tests "
-    sort -R ${LTPROOT}/runtest/ltp-aiodio.part2 -o ${TMPBASE}/ltp-aiodio.part2
+    sort -R ${TESTLIST}/ltp-aiodio.part2 -o ${TMPBASE}/ltp-aiodio.part2
 
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart2 -n ltp-aiodiopart2 -l ltpaiodio2.logfile -o ltpaiodio2.outfile -p -f ${TMPBASE}/ltp-aiodio.part2 &
 
@@ -87,35 +76,73 @@ function io(){
     sync
     echo "************ End Running aiodio_sparse tests "
     echo ""
+}
 
+function fsx-linux(){
     echo "************ Running fsx-linux tests "
-    sort -R ${LTPROOT}/runtest/ltp-aiodio.part3 -o ${TMPBASE}/ltp-aiodio.part3
+    sort -R ${TESTLIST}/ltp-aiodio.part3 -o ${TMPBASE}/ltp-aiodio.part3
 
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart3 -n ltp-aiodiopart3 -l ltpaiodio3.logfile -o ltpaiodio3.outfile -p -f ${TMPBASE}/ltp-aiodio.part3 &
 
     wait $!
     sync
+    echo "************ End Running fsx-linux tests "
+    echo ""
+}
 
-    dd if=$file1 of=$TMP/aiodio/file2      bs=2048 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/file3      bs=1024 conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/file4      bs=512  conv=block,sync
-    dd if=$file1 of=$TMP/aiodio/file5      bs=4096 conv=block,sync
-
+function dio_sparse_and_others(){
     echo "************ Running dio_sparse & miscellaneous tests "
-    sort -R ${LTPROOT}/runtest/ltp-aiodio.part4 -o ${TMPBASE}/ltp-aiodio.part4
+    sort -R ${TESTLIST}/ltp-aiodio.part4 -o ${TMPBASE}/ltp-aiodio.part4
     ${LTPROOT}/bin/ltp-pan -e -S -a ltpaiodiopart4 -n ltp-aiodiopart4 -l ltpaiodio4.logfile -o ltpaiodio4.outfile -p -f ${TMPBASE}/ltp-aiodio.part4 &
 
     wait $!
     sync
     echo "************ End Running dio_sparse & miscellaneous tests "
     echo ""
+}
 
-    rm -f $TMP/aiodio/fff
-    rm -f $TMP/aiodio/ff1
-    rm -f $TMP/aiodio/ff2
-    rm -f $TMP/aiodio/ff3
-    rm -f $TMP/aiodio/junkfile*
-    rm -f $TMP/aiodio/file*
+function io(){
+    echo "IO test begin"
+    export TMPBASE="/tmp"
+    export TMP="${LTPROOT}/tmp"
+    export TMPDIR="$TMP/aiodio"
+    mkdir $TMP  > /dev/null 2>&1
+    file1="$TMP/file1"
+
+    mkdir $TMPDIR  > /dev/null 2>&1
+
+    date
+
+    if [ ! -f ${file1} ]; then
+        dd if=/dev/urandom of=$file1 bs=1M count=1000
+    fi
+
+    dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
+    aio_dio
+    aio_stress
+    aio_stress_extended
+
+    dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
+    dd if=$file1 of=$TMPDIR/fff      bs=4096 conv=block,sync
+    dd if=$file1 of=$TMPDIR/ff1      bs=2048 conv=block,sync
+    dd if=$file1 of=$TMPDIR/ff2      bs=1024 conv=block,sync
+    dd if=$file1 of=$TMPDIR/ff3      bs=512  conv=block,sync
+    aio_cp
+    aiodio_sparse
+    fsx-linux
+
+    dd if=$file1 of=$TMPDIR/file2      bs=2048 conv=block,sync
+    dd if=$file1 of=$TMPDIR/file3      bs=1024 conv=block,sync
+    dd if=$file1 of=$TMPDIR/file4      bs=512  conv=block,sync
+    dd if=$file1 of=$TMPDIR/file5      bs=4096 conv=block,sync
+    dio_sparse_and_others
+
+    rm -f $TMPDIR/fff
+    rm -f $TMPDIR/ff1
+    rm -f $TMPDIR/ff2
+    rm -f $TMPDIR/ff3
+    rm -f $TMPDIR/junkfile*
+    rm -f $TMPDIR/file*
 
     date
     echo "IO test end"
