@@ -14,13 +14,19 @@ function help(){
     echo "    ./runtest mem"
     echo "    ./runtest net"
     echo "    ./runtest all"
+    echo "    ./runtest test"
     echo ""
+}
+
+function cleanup(){
+    cp /opt/ltp/results/* output/
+    cp /opt/ltp/output/* output/
+    rm -rf /opt/ltp/{results,output}/*
 }
 
 function aio_dio(){
     echo "************ Running dio/aio tests "
-    sort -R ${LTPROOT}/runtest/dio -o ${TMPBASE}/ltp-dio_aio
-    cat ${LTPROOT}/runtest/io >> ${TMPBASE}/ltp-dio_aio
+    sort -R ${TESTLIST}/io.test -o ${TMPBASE}/ltp-dio_aio
     
     ${LTPROOT}/bin/ltp-pan -e -S -a dio_aio -n dio_aio -l dio_aio.logfile -o dio_aio.outfile -p -f ${TMPBASE}/ltp-dio_aio &
 
@@ -182,10 +188,25 @@ function net(){
     echo "NET test end"
 }
 
+function test(){
+    echo "test begin"
+    
+    echo "************ Running tests "
+    ${LTPROOT}/runltp -f ${TESTLIST}/test.test
+    cleanup
+
+    sync
+    echo "************ End Running tests "
+    echo ""
+    
+    echo "test end"
+}
+
 case "$1" in
     "io") io;;
     "mem") mem;;
     "net") net;;
     "all") io; mem; net;;
+    "test") test;;
     *) help; exit 1;;
 esac

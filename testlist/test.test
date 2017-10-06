@@ -1,0 +1,4 @@
+aio01 aio01
+aio02 aio_tio
+dio16 diotest5 -b 65536 -i 1000
+mmapstress08 mmapstress08
