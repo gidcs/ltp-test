@@ -21,6 +21,7 @@ function help(){
 function __runltp(){
     local _test=$1
     echo "************ Running ${_test} tests "
+    rm -f ${OUTPUT}/{ltp-${_test},${_test}.*}
     sort -R ${TESTLIST}/${_test} -o ${OUTPUT}/ltp-${_test}
     ${LTPROOT}/bin/ltp-pan -e -S -a ${_test} -n ${_test} \
         -l ${OUTPUT}/${_test}.logfile \
