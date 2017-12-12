@@ -30,5 +30,7 @@ sudo make install
 ```
 git clone https://github.com/gidcs/ltp-test.git
 cd ltp-test
-sudo ./runtest all | sudo tee ltp_full_log.log 2>&1
+sudo ./runtest io | tee ltp_io.log 2>&1
+sudo ./runtest mem | tee ltp_mem.log 2>&1
+sudo ./runtest net | tee ltp_net.log 2>&1
 ```
