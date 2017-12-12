@@ -18,20 +18,14 @@ function help(){
     echo ""
 }
 
-function cleanup(){
-    cp ${LTPROOT}/results/* ${OUTPUT}
-    cp ${LTPROOT}/output/* ${OUTPUT}
-    rm -rf ${LTPROOT}/{results,output}/*
-}
-
 function __runltp(){
     local _test=$1
     echo "************ Running ${_test} tests "
-    sort -R ${TESTLIST}/${_test} -o ${TMPBASE}/ltp-${_test}
+    sort -R ${TESTLIST}/${_test} -o ${OUTPUT}/ltp-${_test}
     ${LTPROOT}/bin/ltp-pan -e -S -a ${_test} -n ${_test} \
         -l ${OUTPUT}/${_test}.logfile \
         -o ${OUTPUT}/${_test}.outfile \
-        -p -f ${TMPBASE}/ltp-${_test} &
+        -p -f ${OUTPUT}/ltp-${_test} &
     wait $!
     sync
     echo "************ End Running ${_test} tests "
@@ -40,7 +34,7 @@ function __runltp(){
 function io(){
     echo "IO test begin"
     date
-    
+
     export TMPBASE="/tmp"
     export TMP="${LTPROOT}/tmp"
     export TMPDIR="$TMP/aiodio"
@@ -55,7 +49,6 @@ function io(){
     fi
 
     dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
-    __runltp "aio_dio"
     __runltp "aio_stress"
     __runltp "aio_stress_extended"
 
@@ -74,13 +67,14 @@ function io(){
     dd if=$file1 of=$TMPDIR/file5      bs=4096 conv=block,sync
     __runltp "dio_sparse_and_others"
 
+    __runltp "aio_dio"
+
     rm -f $TMPDIR/fff
     rm -f $TMPDIR/ff1
     rm -f $TMPDIR/ff2
     rm -f $TMPDIR/ff3
     rm -f $TMPDIR/junkfile*
     rm -f $TMPDIR/file*
-    cleanup
 
     date
     echo "IO test end"
