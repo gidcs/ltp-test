@@ -24,85 +24,23 @@ function cleanup(){
     rm -rf ${LTPROOT}/{results,output}/*
 }
 
-function aio_dio(){
-    echo "************ Running dio/aio tests "
-    sort -R ${TESTLIST}/io.test -o ${TMPBASE}/ltp-dio_aio
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-dio_aio
-
+function __runltp(){
+    local _test=$1
+    echo "************ Running ${_test} tests "
+    sort -R ${TESTLIST}/${_test} -o ${TMPBASE}/ltp-${_test}
+    ${LTPROOT}/bin/ltp-pan -e -S -a ${_test} -n ${_test} \
+        -l ${OUTPUT}/${_test}.logfile \
+        -o ${OUTPUT}/${_test}.outfile \
+        -p -f ${TMPBASE}/ltp-${_test} &
+    wait $!
     sync
-    echo "************ End Running dio/aio tests "
-    echo ""
-}
-
-function aio_stress(){
-    echo "************ Running aio-stress tests "
-    sort -R ${TESTLIST}/ltp-aio-stress.part1 -o ${TMPBASE}/ltp-aio-stress.part1
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aio-stress.part1
-
-    sync
-    echo "************ End Running aio-stress tests "
-    echo ""
-}
-
-function aio_stress_extended(){
-    echo "************ Running EXTENDED aio-stress tests "
-    sort -R ${TESTLIST}/ltp-aio-stress.part2 -o ${TMPBASE}/ltp-aio-stress.part2
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aio-stress.part2
-
-    sync
-    echo "************ End Running EXTENDED aio-stress tests "
-    echo ""
-}
-
-function aio_cp(){
-    echo "************ Running aiocp tests "
-    sort -R ${TESTLIST}/ltp-aiodio.part1 -o ${TMPBASE}/ltp-aiodio.part1
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aiodio.part1
-
-    sync
-    echo "************ End Running aiocp tests "
-    echo ""
-}
-
-function aiodio_sparse(){
-    echo "************ Running aiodio_sparse tests "
-    sort -R ${TESTLIST}/ltp-aiodio.part2 -o ${TMPBASE}/ltp-aiodio.part2
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aiodio.part2
-
-    sync
-    echo "************ End Running aiodio_sparse tests "
-    echo ""
-}
-
-function fsx-linux(){
-    echo "************ Running fsx-linux tests "
-    sort -R ${TESTLIST}/ltp-aiodio.part3 -o ${TMPBASE}/ltp-aiodio.part3
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aiodio.part3
-
-    sync
-    echo "************ End Running fsx-linux tests "
-    echo ""
-}
-
-function dio_sparse_and_others(){
-    echo "************ Running dio_sparse & miscellaneous tests "
-    sort -R ${TESTLIST}/ltp-aiodio.part4 -o ${TMPBASE}/ltp-aiodio.part4
-
-    ${LTPROOT}/runltp -f ${TMPBASE}/ltp-aiodio.part4
-
-    sync
-    echo "************ End Running dio_sparse & miscellaneous tests "
-    echo ""
+    echo "************ End Running ${_test} tests "
 }
 
 function io(){
     echo "IO test begin"
+    date
+    
     export TMPBASE="/tmp"
     export TMP="${LTPROOT}/tmp"
     export TMPDIR="$TMP/aiodio"
@@ -112,31 +50,29 @@ function io(){
 
     mkdir $TMPDIR  > /dev/null 2>&1
 
-    date
-
     if [ ! -f ${file1} ]; then
         dd if=/dev/urandom of=$file1 bs=1M count=100
     fi
 
     dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
-    aio_dio
-    aio_stress
-    aio_stress_extended
+    __runltp "aio_dio"
+    __runltp "aio_stress"
+    __runltp "aio_stress_extended"
 
     dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
     dd if=$file1 of=$TMPDIR/fff      bs=4096 conv=block,sync
     dd if=$file1 of=$TMPDIR/ff1      bs=2048 conv=block,sync
     dd if=$file1 of=$TMPDIR/ff2      bs=1024 conv=block,sync
     dd if=$file1 of=$TMPDIR/ff3      bs=512  conv=block,sync
-    aio_cp
-    aiodio_sparse
-    fsx-linux
+    __runltp "aio_cp"
+    __runltp "aiodio_sparse"
+    __runltp "fsx_linux"
 
     dd if=$file1 of=$TMPDIR/file2      bs=2048 conv=block,sync
     dd if=$file1 of=$TMPDIR/file3      bs=1024 conv=block,sync
     dd if=$file1 of=$TMPDIR/file4      bs=512  conv=block,sync
     dd if=$file1 of=$TMPDIR/file5      bs=4096 conv=block,sync
-    dio_sparse_and_others
+    __runltp "dio_sparse_and_others"
 
     rm -f $TMPDIR/fff
     rm -f $TMPDIR/ff1
@@ -144,6 +80,7 @@ function io(){
     rm -f $TMPDIR/ff3
     rm -f $TMPDIR/junkfile*
     rm -f $TMPDIR/file*
+    cleanup
 
     date
     echo "IO test end"
@@ -153,14 +90,7 @@ function mem(){
     echo "MEM test begin"
     date
 
-    echo "************ Running mm tests "
-
-    ${LTPROOT}/runltp -f ${TESTLIST}/mem.test
-    cleanup
-
-    sync
-    echo "************ End Running mm tests "
-    echo ""
+    __runltp "mem"
 
     date
     echo "MEM test end"
@@ -168,31 +98,22 @@ function mem(){
 
 function net(){
     echo "NET test begin"
+    date
 
-
-    echo "************ Running net tests "
     . ../netconf.env
-    ${LTPROOT}/runltp -f ${TESTLIST}/net.test
-    cleanup
+    __runltp "net"
 
-    sync
-    echo "************ End Running net tests "
-    echo ""
-
+    date
     echo "NET test end"
 }
 
 function test(){
     echo "test begin"
+    date
 
-    echo "************ Running tests "
-    ${LTPROOT}/runltp -f ${TESTLIST}/test.test
-    cleanup
+    __runltp "test"
 
-    sync
-    echo "************ End Running tests "
-    echo ""
-
+    date
     echo "test end"
 }
 
