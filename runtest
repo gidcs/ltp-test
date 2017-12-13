@@ -39,33 +39,30 @@ function io(){
     export TMPBASE="/tmp"
     export TMP="${LTPROOT}/tmp"
     export TMPDIR="$TMP/aiodio"
-    mkdir $TMP  > /dev/null 2>&1
-    mkdir $TMP/junkdir  > /dev/null 2>&1
-    file1="$TMP/file1"
 
-    mkdir -p $TMPDIR  > /dev/null 2>&1
+    mkdir -p $TMPDIR/junkdir  > /dev/null 2>&1
 
     if [ ! -f ${file1} ]; then
-        dd if=/dev/urandom of=$file1 bs=1M count=100
+        dd if=/dev/urandom of=$TMPDIR/file1 bs=1M count=100
     fi
 
-    dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
     __runltp "aio_stress"
     __runltp "aio_stress_extended"
 
-    dd if=$file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
-    dd if=$file1 of=$TMPDIR/fff      bs=4096 conv=block,sync
-    dd if=$file1 of=$TMPDIR/ff1      bs=2048 conv=block,sync
-    dd if=$file1 of=$TMPDIR/ff2      bs=1024 conv=block,sync
-    dd if=$file1 of=$TMPDIR/ff3      bs=512  conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/junkfile bs=8192 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/fff      bs=4096 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/ff1      bs=2048 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/ff2      bs=1024 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/ff3      bs=512  conv=block,sync
     __runltp "aio_cp"
     __runltp "aiodio_sparse"
     __runltp "fsx_linux"
 
-    dd if=$file1 of=$TMPDIR/file2      bs=2048 conv=block,sync
-    dd if=$file1 of=$TMPDIR/file3      bs=1024 conv=block,sync
-    dd if=$file1 of=$TMPDIR/file4      bs=512  conv=block,sync
-    dd if=$file1 of=$TMPDIR/file5      bs=4096 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/file2      bs=2048 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/file3      bs=1024 conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/file4      bs=512  conv=block,sync
+    dd if=$TMPDIR/file1 of=$TMPDIR/file5      bs=4096 conv=block,sync
     __runltp "dio_sparse_and_others"
 
     __runltp "aio_dio"
