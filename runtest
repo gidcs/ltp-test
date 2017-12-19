@@ -42,7 +42,7 @@ function io(){
 
     mkdir -p $TMPDIR/junkdir  > /dev/null 2>&1
 
-    if [ ! -f ${file1} ]; then
+    if [ ! -f $TMPDIR/file1 ]; then
         dd if=/dev/urandom of=$TMPDIR/file1 bs=1M count=100
     fi
 
