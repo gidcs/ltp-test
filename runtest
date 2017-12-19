@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export TMPBASE="/mnt/remote-disk/"
 export LTPROOT="/opt/ltp"
 export PATH=${LTPROOT}/testcases/bin:$PATH
 export TESTLIST="${PWD}/testlist"
@@ -36,8 +37,7 @@ function io(){
     echo "IO test begin"
     date
 
-    export TMPBASE="/tmp"
-    export TMP="${LTPROOT}/tmp"
+    export TMP="$TMPBASE"
     export TMPDIR="$TMP/aiodio"
 
     mkdir -p $TMPDIR/junkdir  > /dev/null 2>&1
