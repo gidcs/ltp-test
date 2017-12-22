@@ -98,7 +98,7 @@ function net(){
     echo "NET test begin"
     date
 
-    . ../netconf.env
+    . ${_env_file}
 
     #login test
     ssh ${RUSER}@${RHOST} ls
