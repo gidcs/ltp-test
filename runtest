@@ -93,6 +93,10 @@ function net(){
     date
 
     . ../netconf.env
+
+    #login test
+    ssh ${RUSER}@${RHOST} ls
+    
     __runltp "net"
 
     date
