@@ -25,6 +25,19 @@ make all -j4
 sudo make install
 ```
 
+## Usage
+
+```
+Usage:
+  ./runtest [-a] [-t <io|mem|net>] [-f <env_file>] [-h]
+
+Options:
+  -a: enable all tests
+  -t: enable test
+  -f: specify env_file
+  -h: help
+```
+
 ## runtest
 
 ```

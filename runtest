@@ -1,21 +1,27 @@
 #!/bin/bash
 
+_mem=0
+_net=0
+_io=0
+_env_file="netconf.env"
+
 export TMPBASE="/mnt/remote-disk/"
 export LTPROOT="/opt/ltp"
 export PATH=${LTPROOT}/testcases/bin:$PATH
 export TESTLIST="${PWD}/testlist"
 export OUTPUT="${PWD}/output"
 mkdir $OUTPUT  > /dev/null 2>&1
-cd $OUTPUT
 
 function help(){
     echo ""
-    echo "Usage: "
-    echo "    ./runtest io"
-    echo "    ./runtest mem"
-    echo "    ./runtest net"
-    echo "    ./runtest all"
-    echo "    ./runtest test"
+    echo "Usage:"
+    echo "  $0 [-a] [-t <io|mem|net>] [-f <env_file>] [-h]"
+    echo ""
+    echo "Options:"
+    echo "  -a: enable all tests"
+    echo "  -t: enable test"
+    echo "  -f: specify env_file"
+    echo "  -h: help"
     echo ""
 }
 
@@ -103,21 +109,74 @@ function net(){
     echo "NET test end"
 }
 
-function test(){
-    echo "test begin"
-    date
-
-    __runltp "test"
-
-    date
-    echo "test end"
+function main {
+    echo "io: ${_io}"
+    echo "mem: ${_mem}"
+    echo "net: ${_net}"
+    echo "env_file: ${_env_file}"
+    echo ""
+    if [ ${_io} -eq 1 ]; then
+        echo "run io"
+        io
+    fi
+    if [ ${_mem} -eq 1 ]; then
+        echo "run mem"
+        mem
+    fi
+    if [ ${_net} -eq 1 ]; then
+        echo "run net"
+        net
+    fi
+    if [ ${_io} -eq 0 ] && [ ${_mem} -eq 0 ] && [ ${_net} -eq 0 ]; then
+        echo "run nothing"
+        help
+        exit 0
+    fi
 }
 
-case "$1" in
-    "io") io;;
-    "mem") mem;;
-    "net") net;;
-    "all") io; mem; net;;
-    "test") test;;
-    *) help; exit 1;;
-esac
+while getopts ":af:ht:" opt; do
+    case $opt in
+        a)
+            _io=1
+            _mem=1
+            _net=1
+            ;;
+        f)
+            _env_file=$OPTARG
+            if [ ! -f ${_env_file} ]; then
+                echo "[ERROR] ${_env_file} does not exists"
+                exit 1
+            fi
+            ;;
+        h)
+            help
+            exit 0
+            ;;
+        t)
+            if [ "$OPTARG" == "io" ]; then
+                _io=1
+            elif [ "$OPTARG" == "mem" ]; then
+                _mem=1
+            elif [ "$OPTARG" == "net" ]; then
+                _net=1
+            else
+                echo "[Error] Invalid type: $OPTARG" >&2
+                help
+                exit 1
+            fi
+            ;;
+        \?)
+            echo "[Error] Invalid option: -$OPTARG" >&2
+            help
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            help
+            exit 1
+        ;;
+    esac
+done
+
+main
+
